@@ -17,43 +17,4 @@ http://www.mulesoft.org/schema/mule/workday http://www.mulesoft.org/schema/mule/
 		</workday:basic-connection>
 	</workday:config>
 	<configuration-properties doc:name="Configuration properties" doc:id="92709f0f-8e5e-4ab0-950e-8d2411a4d60c" file="mule-artifact.properties" />
-	<flow name="adding-a-new-customer-to-workday-revenue-managementFlow" doc:id="7fd1abfa-b894-46b9-9969-81d99ea36f06" >
-		<http:listener doc:name="Listener" doc:id="34cfaaf0-7064-488f-9089-572ec13345d0" config-ref="HTTP_Listener_config" path="/"/>
-		<ee:transform doc:name="Prepare submit customer request" doc:id="ee619409-645c-450b-a810-1271e73fd180">
-			<ee:message>
-				<ee:set-payload><![CDATA[%dw 2.0
-output application/xml
-ns ns0 urn:com.workday/bsvc
----
-{
-	ns0#Submit_Customer_Request: {
-		
-		ns0#Add_Only: true,
-		ns0#Customer_Data: {
-			ns0#Customer_ID: payload.root.Account.CustomerName,
-			ns0#Customer_Reference_ID: payload.root.Account.CustomerName,
-			ns0#Customer_Name: payload.root.Account.CustomerName,
-			ns0#Business_Entity_Data: {
-				ns0#Business_Entity_Name : payload.root.Account.BusinessEntityName
-			},
-			ns0#Customer_Category_Reference: {
-				ns0#ID 
-				@(ns0#"type": payload.root.Account.Customer_Category_Reference_Type)
-				: payload.root.Account.Customer_Category_Reference_Value
-			}
-		}
-	}
-}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<workday:invoke doc:name="Submit new customer" doc:id="b5abeb25-0a9f-4cea-8459-c3284a953674" config-ref="Workday_Config" service="Revenue_Management" operation="Submit_Customer"/>
-		<ee:transform doc:name="Build response" doc:id="35519f3b-5fa6-4a7a-ab32-36bba281f088">
-			<ee:message>
-				<ee:set-payload><![CDATA[%dw 2.0
-output application/xml
----
-payload.body.Submit_Customer_Response]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-	</flow>
 </mule>
